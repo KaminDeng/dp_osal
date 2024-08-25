@@ -6,6 +6,7 @@
 #define TEST_FRAMEWORK_H
 
 #include <vector>
+#include <string>
 
 #include "osal_debug.h"
 #include "test_framework_config.h"

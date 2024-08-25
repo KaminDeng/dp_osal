@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <functional>
+#include <memory>
 #include <queue>
 #include <vector>
 
