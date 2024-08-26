@@ -10,6 +10,8 @@
 #include "interface_timer.h"
 #include "osal_chrono.h"
 #include "osal_debug.h"
+#include "osal_lockguard.h"
+#include "osal_mutex.h"
 
 namespace osal {
 
@@ -62,7 +64,7 @@ public:
     uint32_t getRemainingTime() const override {
         // CMSIS-RTOS2 并没有直接提供查询剩余时间的接口
         // 这里可以通过记录开始时间和间隔时间来计算剩余时间
-        std::lock_guard<std::mutex> lock(mutex_);
+        OSALLockGuard lockGuard(mutex_);
         if (!running_) {
             return 0;
         }
@@ -73,7 +75,7 @@ public:
     }
 
     void reset() override {
-        std::lock_guard<std::mutex> lock(mutex_);
+        OSALLockGuard lockGuard(mutex_);
         if (running_) {
             osTimerStop(timerId_);
             osTimerStart(timerId_, interval_);
@@ -98,7 +100,7 @@ private:
     bool periodic_;
     unsigned int interval_;
     std::function<void()> callback_;
-    mutable std::mutex mutex_;
+    mutable OSALMutex mutex_;
     OSALChrono::TimePoint endTime_;
 };
 

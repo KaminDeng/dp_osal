@@ -139,7 +139,7 @@ public:
     }
 
 private:
-    static void *taskRunner(void *parameters) {
+    static void taskRunner(void *parameters) {
         auto *thread = static_cast<OSALThread *>(parameters);
         if (thread->_taskFunction) {
             thread->_taskFunction(thread->_taskArgument);
@@ -147,7 +147,6 @@ private:
         thread->running = false;
         osSemaphoreRelease(thread->exitSemaphore);
         osThreadExit();
-        return nullptr;
     }
 
     osThreadId_t threadHandle;

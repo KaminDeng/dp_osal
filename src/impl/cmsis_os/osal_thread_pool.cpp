@@ -3,20 +3,7 @@
 //
 #include "osal_thread_pool.h"
 
-#include <typeindex>
-
 namespace osal {
-
-template <typename T>
-std::size_t functionHash(std::function<T> &f) {
-    typedef T *function_ptr_t;
-    auto *function_ptr = f.template target<function_ptr_t>();
-    if (function_ptr) {
-        return std::hash<function_ptr_t>()(*function_ptr);
-    } else {
-        return std::hash<std::type_index>()(std::type_index(typeid(f)));
-    }
-}
 
 OSALThreadPool::OSALThreadPool()
     : isstarted_(false), suspended_(false), priority_(0), activeThreads_(0), maxThreads_(0), minThreads_(0) {}
@@ -121,11 +108,13 @@ bool OSALThreadPool::cancelTask(std::function<void(void *)> &taskFunction) {
     OSALLockGuard lockGuard(queueMutex_);
     std::queue<Task> newQueue;
     bool found = false;
-    std::size_t targetHash = functionHash(taskFunction);
+    auto targetPtr = taskFunction.template target<void (*)(void *)>();
     while (!taskQueue_.empty()) {
         Task task = taskQueue_.front();
         taskQueue_.pop();
-        if (functionHash(task.function) == targetHash) {
+        auto taskPtr = task.function.template target<void (*)(void *)>();
+        // (!taskPtr && !targetPtr) 判断是为了处理两个空的 std::function 对象相等的情况。
+        if ((taskPtr && targetPtr && *taskPtr == *targetPtr) || (!taskPtr && !targetPtr)) {
             found = true;
         } else {
             newQueue.push(task);

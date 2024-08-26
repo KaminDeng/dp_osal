@@ -37,21 +37,20 @@ void common_log(const char *prefix, const char *file, const char *function, int 
         ptr += snprintf(ptr, sizeof(buf) - (ptr - buf), "%s", prefix);
     }
 
+    int written = 0;
     // 如果prefix和前缀信息之后还有空间，则格式化日志消息
     if ((sizeof(buf) - (ptr - buf)) > 0) {
         va_list args_copy;
         va_copy(args_copy, args);
-        //        int written = vsnprintf(ptr, sizeof(buf) - (ptr - buf), format, args_copy);
-        vsnprintf(ptr, sizeof(buf) - (ptr - buf), format, args_copy);
+        written = vsnprintf(ptr, sizeof(buf) - (ptr - buf), format, args_copy);
         va_end(args_copy);
-
-        // 注意：vsnprintf可能返回-1表示错误，或者返回实际写入的字符数（不包括终止null字符）
-        // 如果written >= (sizeof(buf) - (ptr - buf))，则日志消息可能已被截断
-        // 但在这里，我们假设buf足够大，不会发生截断
     }
 
+    // 计算实际需要发送的字节数
+    int total_written = ptr - buf + written;
+
     // 输出日志
-    osal_printf("%s", buf);  // 假设serial_printf不会自动添加换行符，所以这里手动添加
+    osal_port_debug_write(buf, total_written);
 }
 
 // 注意：

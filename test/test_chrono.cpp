@@ -40,7 +40,7 @@ TEST_CASE(TestOSALChronoToTimeT) {
 
 TEST_CASE(TestOSALChronoFromTimeT) {
 #if (TestOSALChronoFromTimeTEnabled)
-    std::time_t time = std::time(nullptr);
+    std::time_t time = OSALChrono::getInstance().to_time_t(OSALChrono::getInstance().now());
     auto timePoint = OSALChrono::getInstance().from_time_t(time);
     OSAL_ASSERT_TRUE(timePoint > 0);
 #endif

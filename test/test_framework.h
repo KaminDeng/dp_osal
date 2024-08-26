@@ -5,11 +5,11 @@
 #ifndef TEST_FRAMEWORK_H
 #define TEST_FRAMEWORK_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "osal_debug.h"
-#include "test_framework_config.h"
+#include "osal_test_framework_config.h"
 
 void runAllTests();
 
