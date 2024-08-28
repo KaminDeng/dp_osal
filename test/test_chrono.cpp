@@ -32,6 +32,7 @@ TEST_CASE(TestOSALChronoElapsed) {
 TEST_CASE(TestOSALChronoToTimeT) {
 #if (TestOSALChronoToTimeTEnabled)
     auto timePoint = OSALChrono::getInstance().now();
+    // 如果系统启动时时间为0, 可能会测试失败
     std::time_t time = OSALChrono::getInstance().to_time_t(timePoint);
     OSAL_ASSERT_TRUE(time > 0);
 #endif
@@ -41,6 +42,7 @@ TEST_CASE(TestOSALChronoToTimeT) {
 TEST_CASE(TestOSALChronoFromTimeT) {
 #if (TestOSALChronoFromTimeTEnabled)
     std::time_t time = OSALChrono::getInstance().to_time_t(OSALChrono::getInstance().now());
+    // 如果系统启动时时间为0, 可能会测试失败
     auto timePoint = OSALChrono::getInstance().from_time_t(time);
     OSAL_ASSERT_TRUE(timePoint > 0);
 #endif

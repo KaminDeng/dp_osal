@@ -7,10 +7,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "cmsis_os.h"
-#include "osal_port_config.h"
-
-#define osal_printf printf
+#include "osal.h"
 
 namespace osal {
 

@@ -7,8 +7,8 @@
 #include <atomic>
 #include <functional>
 
-#include "cmsis_os.h"  // CMSIS-RTOS2 头文件
 #include "interface_thread.h"
+#include "osal.h"
 #include "osal_debug.h"
 
 namespace osal {
@@ -42,9 +42,10 @@ public:
             osThreadAttr_t attr = {};
             attr.name = name;
             attr.priority = (osPriority_t)priority;
-            if (stack_size > 0) {
-                attr.stack_size = stack_size;
-            }
+            attr.stack_size = (stack_size > OSAL_CONFIG_THREAD_MINIMAL_STACK_SIZE)
+                                  ? stack_size
+                                  : OSAL_CONFIG_THREAD_MINIMAL_STACK_SIZE;
+
             if (pstack != nullptr) {
                 attr.stack_mem = pstack;
             }

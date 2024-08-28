@@ -5,6 +5,7 @@
 #define __OSAL_MEMORY_MANAGER_H__
 
 #include <cstdlib>
+#include <cstring>
 #include <new>
 
 #include "interface_memory_manager.h"
@@ -14,55 +15,105 @@ namespace osal {
 
 class OSALMemoryManager : public IMemoryManager {
 public:
-    void *allocate(size_t size) override {
-        void *ptr = std::malloc(size);
-        if (!ptr) {
-            OSAL_LOGE("Failed to allocate memory\n");
-            throw std::bad_alloc();
+    OSALMemoryManager(size_t block_size, size_t block_count)
+        : pool_(nullptr), freeList_(nullptr), blockSize_(block_size), blockCount_(block_count) {
+        initialize(block_size, block_count);
+    }
+
+    ~OSALMemoryManager() override {
+        if (pool_ != nullptr) {
+            std::free(pool_);
+            pool_ = nullptr;
         }
-        OSAL_LOGD("Allocated %zu bytes\n", size);
-        return ptr;
+    }
+
+    bool initialize(size_t block_size, size_t block_count) override {
+        blockSize_ = block_size;
+        blockCount_ = block_count;
+        size_t poolSize = blockSize_ * blockCount_;
+
+        pool_ = std::malloc(poolSize);
+        if (pool_ == nullptr) {
+            OSAL_LOGE("MemoryPool initialization failed: unable to allocate memory.");
+            return false;
+        }
+
+        freeList_ = reinterpret_cast<void **>(pool_);
+        for (size_t i = 0; i < blockCount_ - 1; ++i) {
+            freeList_[i] = reinterpret_cast<void *>(reinterpret_cast<uint8_t *>(pool_) + (i + 1) * blockSize_);
+        }
+        freeList_[blockCount_ - 1] = nullptr;
+
+        OSAL_LOGD("MemoryPool initialized with block size: %zu, block count: %zu.", blockSize_, blockCount_);
+        return true;
+    }
+
+    void *allocate(size_t size) override {
+        if (size > blockSize_) {
+            OSAL_LOGE("Allocation failed: requested size %zu exceeds block size %zu.", size, blockSize_);
+            return nullptr;
+        }
+
+        if (freeList_ == nullptr) {
+            OSAL_LOGE("Allocation failed: no free blocks available.");
+            return nullptr;
+        }
+
+        void *block = freeList_;
+        freeList_ = reinterpret_cast<void **>(*freeList_);
+        OSAL_LOGD("Allocated block at address: %p.", block);
+        return block;
     }
 
     void deallocate(void *ptr) override {
-        std::free(ptr);
-        OSAL_LOGD("Deallocated memory\n");
+        if (ptr == nullptr) {
+            OSAL_LOGE("Deallocate failed: pointer is null.");
+            return;
+        }
+
+        *reinterpret_cast<void **>(ptr) = freeList_;
+        freeList_ = reinterpret_cast<void **>(ptr);
+        OSAL_LOGD("Deallocated block at address: %p.", ptr);
     }
 
     void *reallocate(void *ptr, size_t newSize) override {
-        void *newPtr = std::realloc(ptr, newSize);
-        if (!newPtr) {
-            OSAL_LOGE("Failed to reallocate memory\n");
-            throw std::bad_alloc();
+        if (newSize > blockSize_) {
+            OSAL_LOGE("Reallocate failed: requested size %zu exceeds block size %zu.", newSize, blockSize_);
+            return nullptr;
         }
-        OSAL_LOGD("Reallocated memory to %zu bytes\n", newSize);
+
+        void *newPtr = allocate(newSize);
+        if (newPtr && ptr) {
+            std::memcpy(newPtr, ptr, blockSize_);  // 复制旧数据到新块
+            deallocate(ptr);
+        }
+
         return newPtr;
     }
 
     void *allocateAligned(size_t size, size_t alignment) override {
-        void *ptr = nullptr;
-#if defined(_ISOC11_SOURCE)
-        ptr = std::aligned_alloc(alignment, size);
-#else
-        if (posix_memalign(&ptr, alignment, size) != 0) {
-            ptr = nullptr;
+        if (alignment < sizeof(void *)) {
+            alignment = sizeof(void *);
         }
-#endif
+        void *ptr = allocate(size + alignment);
         if (!ptr) {
-            OSAL_LOGE("Failed to allocate aligned memory\n");
-            throw std::bad_alloc();
+            OSAL_LOGE("Aligned allocation failed: unable to allocate memory.");
+            return nullptr;
         }
-        OSAL_LOGD("Allocated %zu bytes with alignment %zu\n", size, alignment);
-        return ptr;
+
+        uintptr_t alignedPtr = (reinterpret_cast<uintptr_t>(ptr) + alignment - 1) & ~(alignment - 1);
+        OSAL_LOGD("Aligned allocation: original address: %p, aligned address: %p.", ptr,
+                  reinterpret_cast<void *>(alignedPtr));
+        return reinterpret_cast<void *>(alignedPtr);
     }
 
-    size_t getAllocatedSize(void *ptr) const override {
-        (void)ptr;
-        // 这个功能在标准库中没有直接支持，通常需要自定义内存分配器来实现。
-        // 这里仅作为示例，返回0。
-        OSAL_LOGD("Requested size of allocated memory\n");
-        return 0;
-    }
+    [[nodiscard]] size_t getAllocatedSize() const override { return blockSize_; }
+
+private:
+    void *pool_;
+    void **freeList_;
+    size_t blockSize_;
+    size_t blockCount_;
 };
 
 }  // namespace osal

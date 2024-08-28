@@ -4,7 +4,6 @@
 #include "test_framework.h"
 
 #include "osal_debug.h"
-#include "test_chrono.cpp"
 #include "test_condition_variable.cpp"
 #include "test_lockguard.cpp"
 #include "test_memory_manger.cpp"
@@ -16,6 +15,8 @@
 #include "test_thread.cpp"
 #include "test_thread_pool.cpp"
 #include "test_timer.cpp"
+// 如果系统启动时时间为0, 可能会测试失败
+#include "test_chrono.cpp"
 
 using namespace osal;
 
@@ -58,6 +59,6 @@ void runAllTests() {
         index++;
     }
 
-    OSAL_LOGI("Total tests: %zu -> Passed: %d, Failed: %d, Not Executed: %d\n", tests.size(), passed, failed,
+    OSAL_LOGI("Total tests: %d -> Passed: %d, Failed: %d, Not Executed: %d\n", static_cast<int>(tests.size()), passed, failed,
               not_executed);
 }

@@ -9,7 +9,7 @@ using namespace osal;
 
 TEST_CASE(TestOSALMemoryManagerAllocate) {
 #if (TestOSALMemoryManagerAllocateEnabled)
-    osal::OSALMemoryManager memoryManager;
+    osal::OSALMemoryManager memoryManager(128, 10);
     void *ptr = memoryManager.allocate(50);
     OSAL_ASSERT_TRUE(ptr != nullptr);
     memoryManager.deallocate(ptr);
@@ -19,7 +19,7 @@ TEST_CASE(TestOSALMemoryManagerAllocate) {
 
 TEST_CASE(TestOSALMemoryManagerDeallocate) {
 #if (TestOSALMemoryManagerDeallocateEnabled)
-    osal::OSALMemoryManager memoryManager;
+    osal::OSALMemoryManager memoryManager(128, 10);
     void *ptr = memoryManager.allocate(50);
     OSAL_ASSERT_TRUE(ptr != nullptr);
     memoryManager.deallocate(ptr);
@@ -30,7 +30,7 @@ TEST_CASE(TestOSALMemoryManagerDeallocate) {
 
 TEST_CASE(TestOSALMemoryManagerReallocate) {
 #if (TestOSALMemoryManagerReallocateEnabled)
-    osal::OSALMemoryManager memoryManager;
+    osal::OSALMemoryManager memoryManager(128, 10);
     void *ptr = memoryManager.allocate(50);
     OSAL_ASSERT_TRUE(ptr != nullptr);
     void *newPtr = memoryManager.reallocate(ptr, 100);
@@ -42,8 +42,8 @@ TEST_CASE(TestOSALMemoryManagerReallocate) {
 
 TEST_CASE(TestOSALMemoryManagerAllocateAligned) {
 #if (TestOSALMemoryManagerAllocateAlignedEnabled)
-    osal::OSALMemoryManager memoryManager;
-    void *ptr = memoryManager.allocateAligned(100, 64);
+    osal::OSALMemoryManager memoryManager(128, 10);
+    void *ptr = memoryManager.allocateAligned(50, 64);
     OSAL_ASSERT_TRUE(ptr != nullptr);
     OSAL_ASSERT_TRUE(reinterpret_cast<uintptr_t>(ptr) % 64 == 0);
     memoryManager.deallocate(ptr);

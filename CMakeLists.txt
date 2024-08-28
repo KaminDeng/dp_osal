@@ -32,17 +32,18 @@ file(GLOB_RECURSE TEST_SUITE_SOURCES "${TEST_SUITE_PATH}/*.cpp")
 # 添加库
 add_library(osal_lib STATIC
         src/debug/osal_debug.cpp
-#        ${TEST_SUITE_SOURCES}
         ${SYSTEM_IMPL_SOURCES}
         $<IF:${OSAL_CONFIG_TEST_ENABLE},${TEST_SUITE_SOURCES},>
 )
 
 # 遍历子目录以确保包含所有头文件
 foreach (subdir
+        src
         src/interface
         src/debug
         $<IF:$<STREQUAL:${OSAL_CONFIG_PLATFORM},OSAL_CONFIG_CMSIS_OS>,src/impl/cmsis_os/include,>
         $<IF:$<STREQUAL:${OSAL_CONFIG_PLATFORM},OSAL_CONFIG_POSIX>,src/impl/posix/include,>
+        $<IF:${OSAL_CONFIG_TEST_ENABLE},${TEST_SUITE_PATH},>
 
 )
     target_include_directories(osal_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/${subdir})

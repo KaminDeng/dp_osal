@@ -45,7 +45,9 @@ public:
 
             // 设置线程堆栈大小
             if (stack_size > 0) {
-                pthread_attr_setstacksize(&attr, stack_size);
+                int size = (stack_size > OSAL_CONFIG_THREAD_MINIMAL_STACK_SIZE) ? stack_size
+                                                                                : OSAL_CONFIG_THREAD_MINIMAL_STACK_SIZE;
+                pthread_attr_setstacksize(&attr, size);
             }
 
             // 设置线程堆栈内存

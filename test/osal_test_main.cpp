@@ -8,19 +8,17 @@
 
 using namespace osal;
 
-[[noreturn]] void StartDefaultTask(void *argument) {
-    //    setLogLevel(LOG_LEVEL_VERBOSE);
+void StartDefaultTask(void *argument) {
+    (void)argument;
+    // setLogLevel(LOG_LEVEL_VERBOSE);
     runAllTests();
-    for (;;) {
-        OSAL_LOGI("hello world %d\n", *((int *)argument));
-        OSALSystem::getInstance().sleep_ms(1000);
-    }
 }
 
+OSALThread osal_test_thread;
 extern "C" int osal_test_main(void) {
     static int arg = 12;
     OSAL_LOGI("System Type: %s\n", OSALSystem::getInstance().get_system_info());
-    OSALThread test_thread("test_thread", StartDefaultTask, (void *)&arg);
+    osal_test_thread.start("osal_test_thread", StartDefaultTask, (void *)&arg, 0, 2048);
     OSALSystem::getInstance().StartScheduler();
     return 0;
 }
