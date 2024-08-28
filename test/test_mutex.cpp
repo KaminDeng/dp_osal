@@ -77,7 +77,7 @@ TEST_CASE(TestOSALMutexLockAndUnlock) {
     };
 
     OSALThread thread;
-    thread.start("TestThread", taskFunction);
+    thread.start("TestThread", taskFunction, nullptr, 0, 1024);
 
     // 尝试锁定互斥锁
     OSALSystem::getInstance().sleep_ms(100);

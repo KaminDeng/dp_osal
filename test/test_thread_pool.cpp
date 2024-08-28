@@ -14,7 +14,7 @@ using namespace osal;
 TEST_CASE(TestOSALThreadPoolStartStop) {
 #if (TestOSALThreadPoolStartStopEnabled)
     osal::OSALThreadPool threadPool;
-    threadPool.start(4);
+    threadPool.start(4, 0, 1024);
     OSAL_ASSERT_TRUE(threadPool.isStarted());
     auto task = [](void *arg) {
         (void)arg;
@@ -34,7 +34,7 @@ TEST_CASE(TestOSALThreadPoolStartStop) {
 TEST_CASE(TestOSALThreadPoolSuspendResume) {
 #if (TestOSALThreadPoolSuspendResumeEnabled)
     osal::OSALThreadPool threadPool;
-    threadPool.start(4);
+    threadPool.start(4, 0, 1024);
     OSAL_ASSERT_TRUE(threadPool.isStarted());
     OSAL_ASSERT_EQ(threadPool.suspend(), 0);
     OSAL_ASSERT_TRUE(threadPool.isSuspended());
@@ -53,7 +53,7 @@ auto task = [](void *arg) {
 TEST_CASE(TestOSALThreadPoolSubmitTask) {
 #if (TestOSALThreadPoolSubmitTaskEnabled)
     osal::OSALThreadPool threadPool;
-    threadPool.start(4);
+    threadPool.start(4, 0, 1024);
 
     bool taskExecuted = false;
     threadPool.submit(task, &taskExecuted, 0);
@@ -77,7 +77,7 @@ TEST_CASE(TestOSALThreadPoolSetPriority) {
 TEST_CASE(TestOSALThreadPoolGetTaskQueueSize) {
 #if (TestOSALThreadPoolGetTaskQueueSizeEnabled)
     osal::OSALThreadPool threadPool;
-    threadPool.start(4);
+    threadPool.start(4, 0, 1024);
 
     auto task = [](void *arg) {
         (void)arg;
@@ -96,7 +96,7 @@ TEST_CASE(TestOSALThreadPoolGetTaskQueueSize) {
 TEST_CASE(TestOSALThreadPoolGetActiveThreadCount) {
 #if (TestOSALThreadPoolGetActiveThreadCountEnabled)
     osal::OSALThreadPool threadPool;
-    threadPool.start(4);
+    threadPool.start(4, 0, 1024);
     OSAL_ASSERT_EQ(threadPool.getActiveThreadCount(), 0);
 
     bool taskExecuted = false;
@@ -117,7 +117,7 @@ TEST_CASE(TestOSALThreadPoolGetActiveThreadCount) {
 TEST_CASE(TestOSALThreadPoolCancelTask) {
 #if (TestOSALThreadPoolCancelTaskEnabled)
     osal::OSALThreadPool threadPool;
-    threadPool.start(4);
+    threadPool.start(4, 0, 1024);
 
     bool taskExecuted = false;
     std::function<void(void *)> task = [](void *arg) {
@@ -144,7 +144,7 @@ TEST_CASE(TestOSALThreadPoolCancelTask) {
 TEST_CASE(TestOSALThreadPoolSetTaskFailureCallback) {
 #if (TestOSALThreadPoolSetTaskFailureCallbackEnabled)
     osal::OSALThreadPool threadPool;
-    threadPool.start(4);
+    threadPool.start(4, 0, 1024);
 
     bool callbackCalled = false;
     auto callback = [](void *arg) {
@@ -163,7 +163,7 @@ TEST_CASE(TestOSALThreadPoolSetTaskFailureCallback) {
 TEST_CASE(TestOSALThreadPoolSetMaxThreads) {
 #if (TestOSALThreadPoolSetMaxThreadsEnabled)
     osal::OSALThreadPool threadPool;
-    threadPool.start(2);
+    threadPool.start(2, 0, 1024);
     OSAL_ASSERT_EQ(threadPool.getMinThreads(), 2);
 
     threadPool.setMaxThreads(4);

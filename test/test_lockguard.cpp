@@ -62,7 +62,7 @@ TEST_CASE(TestOSALLockGuardMultiThread) {
         taskExecuted = true;
     };
 
-    thread.start("TestThread", workerTask);
+    thread.start("TestThread", workerTask, nullptr, 0, 1024);
 
     thread.join();
     OSAL_ASSERT_TRUE(taskExecuted.load());

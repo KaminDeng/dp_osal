@@ -16,11 +16,14 @@ TEST_CASE(TestOSALThreadStart) {
     OSALThread thread;
     std::atomic<int> taskExecuted(1);
 
-    thread.start("TestThread", [&](void *) {
-        taskExecuted = 2;
-        OSALSystem::getInstance().sleep_ms(10000);
-        taskExecuted = 3;
-    });
+    thread.start(
+        "TestThread",
+        [&](void *) {
+            taskExecuted = 2;
+            OSALSystem::getInstance().sleep_ms(10000);
+            taskExecuted = 3;
+        },
+        nullptr, 0, 1024);
 
     auto timestamp_now = OSALChrono::getInstance().now();
     OSALSystem::getInstance().sleep_ms(100);
@@ -41,7 +44,7 @@ TEST_CASE(TestOSALThreadStop) {
     OSALThread thread;
     std::atomic<bool> taskExecuted(false);
 
-    thread.start("TestThread", [&](void *) { taskExecuted = true; });
+    thread.start("TestThread", [&](void *) { taskExecuted = true; }, nullptr, 0, 1024);
 
     thread.join();
     OSAL_ASSERT_TRUE(taskExecuted);
@@ -57,7 +60,7 @@ TEST_CASE(TestOSALThreadJoin) {
     OSALThread thread;
     std::atomic<bool> taskExecuted(false);
 
-    thread.start("TestThread", [&](void *) { taskExecuted = true; });
+    thread.start("TestThread", [&](void *) { taskExecuted = true; }, nullptr, 0, 1024);
 
     thread.join();
     OSAL_ASSERT_TRUE(taskExecuted);
@@ -73,10 +76,13 @@ TEST_CASE(TestOSALThreadDetach) {
     OSALThread thread;
     std::atomic<bool> taskExecuted(false);
 
-    thread.start("TestThread", [&](void *) {
-        OSALSystem::getInstance().sleep_ms(50);
-        taskExecuted = true;
-    });
+    thread.start(
+        "TestThread",
+        [&](void *) {
+            OSALSystem::getInstance().sleep_ms(50);
+            taskExecuted = true;
+        },
+        nullptr, 0, 1024);
 
     thread.detach();
     OSALSystem::getInstance().sleep_ms(100);
@@ -93,10 +99,13 @@ TEST_CASE(TestOSALThreadIsRunning) {
     OSALThread thread;
     std::atomic<bool> taskExecuted(false);
 
-    thread.start("TestThread", [&](void *) {
-        OSALSystem::getInstance().sleep_ms(100);
-        taskExecuted = true;
-    });
+    thread.start(
+        "TestThread",
+        [&](void *) {
+            OSALSystem::getInstance().sleep_ms(100);
+            taskExecuted = true;
+        },
+        nullptr, 0, 1024);
 
     OSAL_ASSERT_TRUE(thread.isRunning());
     thread.join();
@@ -113,7 +122,7 @@ TEST_CASE(TestOSALThreadSetAndGetPriority) {
     OSALThread thread;
     std::atomic<bool> taskExecuted(false);
 
-    thread.start("TestThread", [&](void *) { taskExecuted = true; });
+    thread.start("TestThread", [&](void *) { taskExecuted = true; }, nullptr, 0, 1024);
 
     // 设置线程优先级
     int priority = 10;
@@ -151,7 +160,7 @@ TEST_CASE(TestOSALThreadSuspendAndResume) {
         taskExecuted = true;
     };
 
-    thread.start("TestThread", taskFunction);
+    thread.start("TestThread", taskFunction, nullptr, 0, 1024);
 
     // 暂停线程
     thread.suspend();

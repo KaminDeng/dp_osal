@@ -26,7 +26,7 @@ TEST_CASE(TestOSALConditionVariableWaitAndNotifyOne) {
             OSALSystem::getInstance().sleep_ms(200);  // Simulate a delay
             static_cast<osal::OSALConditionVariable *>(arg)->notifyOne();
         },
-        &condVar);
+        &condVar, 0, 1024);
 
     // Test waiting on the condition variable
     condVar.wait(mutex);
@@ -53,7 +53,7 @@ TEST_CASE(TestOSALConditionVariableWaitForTimeout) {
             OSALSystem::getInstance().sleep_ms(1000);  // Simulate a delay longer than the timeout
             static_cast<osal::OSALConditionVariable *>(arg)->notifyOne();
         },
-        &condVar);
+        &condVar, 0, 1024);
 
     // Should return false as the wait should time out before notify
     OSAL_ASSERT_FALSE(condVar.waitFor(mutex, 500));
@@ -80,9 +80,9 @@ TEST_CASE(TestOSALConditionVariableNotifyAll) {
         taskExecutedCount++;
     };
 
-    OSALThread thread1("test_thread1", worker);
-    OSALThread thread2("test_thread2", worker);
-    OSALThread thread3("test_thread3", worker);
+    OSALThread thread1("test_thread1", worker, nullptr, 0, 1024);
+    OSALThread thread2("test_thread2", worker, nullptr, 0, 1024);
+    OSALThread thread3("test_thread3", worker, nullptr, 0, 1024);
 
     OSALSystem::getInstance().sleep_ms(100);  // Ensure all threads are waiting
     OSAL_ASSERT_EQ(taskExecutedCount.load(), 0);
@@ -113,8 +113,8 @@ TEST_CASE(TestOSALConditionVariableWaitCount) {
     };
 
     OSALThread thread1, thread2;
-    thread1.start("TestThread1", workerTask);
-    thread2.start("TestThread2", workerTask);
+    thread1.start("TestThread1", workerTask, nullptr, 0, 1024);
+    thread2.start("TestThread2", workerTask, nullptr, 0, 1024);
 
     OSALSystem::getInstance().sleep_ms(100);  // 确保线程进入等待状态
     OSAL_ASSERT_EQ(condVar.getWaitCount(), 2);

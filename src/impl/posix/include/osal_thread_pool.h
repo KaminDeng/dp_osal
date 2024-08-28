@@ -25,7 +25,7 @@ public:
 
     ~OSALThreadPool();
 
-    void start(uint32_t numThreads) override;
+    void start(uint32_t numThreads, int priority = 0, int stack_size = 0) override;
 
     void stop() override;
 
@@ -81,6 +81,7 @@ private:
     std::atomic<bool> isstarted_;
     std::atomic<bool> suspended_;
     std::atomic<int> priority_;
+    std::atomic<int> stack_size_;
     std::atomic<uint32_t> activeThreads_;
     std::atomic<uint32_t> maxThreads_;
     std::atomic<uint32_t> minThreads_;

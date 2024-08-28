@@ -11,7 +11,7 @@ public:
     virtual ~IThreadPool() = default;
 
     // 启动线程池
-    virtual void start(uint32_t numThreads) = 0;
+    virtual void start(uint32_t numThreads, int priority = 0, int stack_size = 0) = 0;
 
     // 停止线程池
     virtual void stop() = 0;

@@ -19,22 +19,16 @@ public:
     }
 
     OSALThread(const char *name, std::function<void(void *)> taskFunction, void *taskArgument = nullptr,
-               int priority = osPriorityNormal, int stack_size = 0, void *pstack = nullptr)
+               int priority = OSAL_CONFIG_THREAD_DEFAULT_PRIORITY, int stack_size = 0, void *pstack = nullptr)
         : threadHandle(nullptr), running(false), suspended(false) {
         OSAL_LOGD("OSALThread parameterized constructor called\n");
         start(name, taskFunction, taskArgument, priority, stack_size, pstack);
     }
 
-    ~OSALThread() override {
-        stop();
-        //            if (isRunning()) {
-        //                OSAL_LOGD("OSALThread destructor called, terminating thread\n");
-        //                osThreadTerminate(threadHandle);
-        //            }
-    }
+    ~OSALThread() override { stop(); }
 
     int start(const char *name, std::function<void(void *)> taskFunction, void *taskArgument = nullptr,
-              int priority = osPriorityNormal, int stack_size = 0, void *pstack = nullptr) override {
+              int priority = OSAL_CONFIG_THREAD_DEFAULT_PRIORITY, int stack_size = 0, void *pstack = nullptr) override {
         if (!isRunning()) {
             this->_taskFunction = taskFunction;
             this->_taskArgument = taskArgument;

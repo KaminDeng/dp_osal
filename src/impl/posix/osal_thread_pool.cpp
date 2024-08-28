@@ -14,11 +14,13 @@ OSALThreadPool::OSALThreadPool()
 
 OSALThreadPool::~OSALThreadPool() { stop(); }
 
-void OSALThreadPool::start(uint32_t numThreads) {
+void OSALThreadPool::start(uint32_t numThreads, int priority, int stack_size) {
     stop();  // 停止任何现有的线程池
     isstarted_ = true;
     minThreads_ = numThreads;
     maxThreads_ = numThreads;
+    priority_ = priority;
+    stack_size_ = stack_size;
     for (uint32_t i = 0; i < numThreads; ++i) {
         OSALThreadPool::OSALAddTread();
     }
@@ -31,7 +33,7 @@ bool OSALThreadPool::OSALAddTread() {
         OSAL_LOGE("Failed to create thread\n");
         return false;
     } else {
-        thread->start("ThreadPool", threadEntry, this, priority_);
+        thread->start("ThreadPool", threadEntry, this, priority_, stack_size_);
         threads_.push_back(std::move(thread));
         return true;
     }
