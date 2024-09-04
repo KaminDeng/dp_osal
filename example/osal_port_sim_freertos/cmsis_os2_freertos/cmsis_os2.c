@@ -1335,9 +1335,9 @@ osMutexId_t osMutexNew(const osMutexAttr_t *attr) {
                 vQueueAddToRegistry(hMutex, name);
             }
 #endif
-
+            // TODO: kamin mod uint32_t -> uint64_t
             if ((hMutex != NULL) && (rmtx != 0U)) {
-                hMutex = (SemaphoreHandle_t)((uint32_t)hMutex | 1U);
+                hMutex = (SemaphoreHandle_t)((uint64_t)hMutex | 1U);
             }
         }
     }
@@ -1351,11 +1351,10 @@ osStatus_t osMutexAcquire(osMutexId_t mutex_id, uint32_t timeout) {
     uint32_t rmtx = 0;
 
     // TODO: kamin comment
-    //    hMutex = (SemaphoreHandle_t)((uint64_t)mutex_id & ~1U);
-    hMutex = (SemaphoreHandle_t)mutex_id;
-    //    rmtx = 1;
-
-    //  rmtx = (uint64_t)mutex_id & 1U;
+    hMutex = (SemaphoreHandle_t)((uint64_t)mutex_id & 0xFFFFFFFFFFFFFFFE);
+    rmtx = (uint64_t)mutex_id & 1U;
+//    hMutex = (SemaphoreHandle_t)((uint32_t)mutex_id & ~1U);
+//    rmtx = (uint32_t)mutex_id & 1U;
 
     stat = osOK;
 
@@ -1394,9 +1393,10 @@ osStatus_t osMutexRelease(osMutexId_t mutex_id) {
     uint32_t rmtx = 0;
 
     // TODO: kamin comment
-    hMutex = (SemaphoreHandle_t)mutex_id;
-
-    //  rmtx = (uint64_t)mutex_id & 1U;
+    hMutex = (SemaphoreHandle_t)((uint64_t)mutex_id & 0xFFFFFFFFFFFFFFFE);
+    rmtx = (uint64_t)mutex_id & 1U;
+//    hMutex = (SemaphoreHandle_t)((uint32_t)mutex_id & ~1U);
+//    rmtx = (uint32_t)mutex_id & 1U;
 
     stat = osOK;
 
@@ -1441,7 +1441,9 @@ osStatus_t osMutexDelete(osMutexId_t mutex_id) {
 #ifndef USE_FreeRTOS_HEAP_1
     SemaphoreHandle_t hMutex;
 
-    hMutex = (SemaphoreHandle_t)mutex_id;
+    // TODO: kamin comment
+    hMutex = (SemaphoreHandle_t)((uint64_t)mutex_id & 0xFFFFFFFFFFFFFFFE);
+//    hMutex = (SemaphoreHandle_t)((uint32_t)mutex_id & ~1U);
 
     if (IS_IRQ()) {
         stat = osErrorISR;
