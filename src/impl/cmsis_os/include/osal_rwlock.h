@@ -4,7 +4,7 @@
 #ifndef __OSAL_RWLOCK_H__
 #define __OSAL_RWLOCK_H__
 
-#include "cmsis_os.h"
+#include "osal.h"
 #include "interface_rwlock.h"
 #include "osal_debug.h"
 
@@ -15,6 +15,7 @@ public:
     OSALRWLock() {
         osMutexAttr_t mutexAttr = {};
         mutexAttr.name = "RWLockMutex";
+        mutexAttr.attr_bits = osMutexRecursive | osMutexPrioInherit;
         mutex_ = osMutexNew(&mutexAttr);
 
         osSemaphoreAttr_t semAttr = {};

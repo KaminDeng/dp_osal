@@ -10,6 +10,11 @@ using namespace osal;
 TEST_CASE(TestOSALChronoNow) {
 #if (TestOSALChronoNowEnabled)
     auto timePoint1 = OSALChrono::getInstance().now();
+    // 如果系统启动时时间为0, 可能会测试失败
+    if(timePoint1 < 1000) {
+        OSALSystem::getInstance().sleep_ms(1000);
+        timePoint1 = OSALChrono::getInstance().now();
+    }
     OSALSystem::getInstance().sleep_ms(15);
     auto timePoint2 = OSALChrono::getInstance().now();
     auto interval = timePoint2 - timePoint1;
@@ -23,7 +28,7 @@ TEST_CASE(TestOSALChronoElapsed) {
     auto timePoint1 = OSALChrono::getInstance().now();
     OSALSystem::getInstance().sleep_ms(15);
     auto timePoint2 = OSALChrono::getInstance().now();
-    auto duration = OSALChrono::getInstance().elapsed(timePoint1, timePoint2);
+    auto duration = (float)OSALChrono::getInstance().elapsed(timePoint1, timePoint2);
     OSAL_ASSERT_TRUE(duration >= 0.01f && duration < 0.02f);  // 允许一些误差
 #endif
     return 0;  // 表示测试通过

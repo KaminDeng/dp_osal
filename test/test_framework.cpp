@@ -62,3 +62,9 @@ void runAllTests() {
     OSAL_LOGI("Total tests: %d -> Passed: %d, Failed: %d, Not Executed: %d\n", static_cast<int>(tests.size()), passed, failed,
               not_executed);
 }
+
+// 用于封装返回值伟int的宏
+void TestOSALPackFunc(std::function<int(void *)> taskFunction) {
+    if(taskFunction)
+        taskFunction(nullptr);
+}

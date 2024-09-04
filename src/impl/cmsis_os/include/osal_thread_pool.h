@@ -10,7 +10,7 @@
 #include <queue>
 #include <vector>
 
-#include "cmsis_os.h"
+#include "osal.h"
 #include "interface_thread_pool.h"
 #include "osal_condition_variable.h"
 #include "osal_debug.h"

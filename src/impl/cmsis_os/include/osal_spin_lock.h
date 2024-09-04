@@ -4,17 +4,19 @@
 #ifndef __OSAL_SPINLOCK_H__
 #define __OSAL_SPINLOCK_H__
 
-#include "cmsis_os.h"
+#include "osal.h"
 #include "interface_spin_lock.h"
 #include "osal_debug.h"
+#include <atomic>
 
 namespace osal {
 
 class OSALSpinLock : public ISpinLock {
 public:
-    OSALSpinLock() {
+    OSALSpinLock() : lockCount(0) {
         osMutexAttr_t mutexAttr = {};
         mutexAttr.name = "OSALSpinLock";
+        mutexAttr.attr_bits = osMutexRecursive | osMutexPrioInherit;
         mutex_ = osMutexNew(&mutexAttr);
         if (mutex_ == nullptr) {
             OSAL_LOGE("Failed to create mutex\n");
@@ -33,6 +35,7 @@ public:
 
     void lock() override {
         if (osMutexAcquire(mutex_, osWaitForever) == osOK) {
+            lockCount++;
             OSAL_LOGD("Lock acquired\n");
         } else {
             OSAL_LOGE("Lock acquisition failed\n");
@@ -41,6 +44,7 @@ public:
 
     bool tryLock() override {
         if (osMutexAcquire(mutex_, 0) == osOK) {
+            lockCount++;
             OSAL_LOGD("Try lock succeeded\n");
             return true;
         }
@@ -50,6 +54,7 @@ public:
 
     bool lockFor(uint32_t timeout) override {
         if (osMutexAcquire(mutex_, timeout) == osOK) {
+            lockCount++;
             OSAL_LOGD("Lock with timeout succeeded\n");
             return true;
         }
@@ -59,6 +64,7 @@ public:
 
     void unlock() override {
         if (osMutexRelease(mutex_) == osOK) {
+            lockCount--;
             OSAL_LOGD("Lock released\n");
         } else {
             OSAL_LOGE("Lock release failed\n");
@@ -66,18 +72,14 @@ public:
     }
 
     [[nodiscard]] bool isLocked() const override {
-        // CMSIS-RTOS2 并没有直接提供查询互斥锁状态的接口
-        // 这里可以通过尝试获取锁来间接判断锁的状态
-        bool result = (osMutexAcquire(mutex_, 0) != osOK);
-        if (!result) {
-            osMutexRelease(mutex_);
-        }
+        bool result = (lockCount > 0);
         OSAL_LOGD("Requested lock status: %s\n", result ? "locked" : "unlocked");
         return result;
     }
 
 private:
     osMutexId_t mutex_;
+    mutable std::atomic<int> lockCount;  // 使用原子计数器来跟踪锁的状态
 };
 
 }  // namespace osal

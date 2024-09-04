@@ -6,7 +6,7 @@
 namespace osal {
 
 OSALThreadPool::OSALThreadPool()
-    : isstarted_(false), suspended_(false), priority_(0), stack_size_(0), maxThreads_(0), minThreads_(0) {}
+    : isstarted_(false), suspended_(false), priority_(0), stack_size_(0), activeThreads_(0), maxThreads_(0), minThreads_(0) {}
 
 OSALThreadPool::~OSALThreadPool() { stop(); }
 

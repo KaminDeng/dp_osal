@@ -4,7 +4,7 @@
 #ifndef OSAL_SYSTEM_H_
 #define OSAL_SYSTEM_H_
 
-#include "cmsis_os.h"
+#include "osal.h"
 #include "interface_system.h"
 
 namespace osal {

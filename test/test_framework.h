@@ -7,11 +7,13 @@
 
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "osal_debug.h"
 #include "osal_test_framework_config.h"
 
 void runAllTests();
+void TestOSALPackFunc(std::function<int(void *)> taskFunction);
 
 #define OSAL_ASSERT_TRUE(condition) OSAL_ASSERT_EQ(condition, true)
 #define OSAL_ASSERT_FALSE(condition) OSAL_ASSERT_EQ(condition, false)

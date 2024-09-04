@@ -6,7 +6,7 @@
 
 #include <string.h>
 
-#include "cmsis_os.h"
+#include "osal.h"
 #include "interface_memory_manager.h"
 #include "osal_debug.h"
 
@@ -67,10 +67,33 @@ public:
         if (memPoolId == NULL) {
             is_inited = initialize(_block_size, _block_count);
         }
-        if (osMemoryPoolFree(memPoolId, ptr) != osOK) {
-            OSAL_LOGE("Failed to deallocate memory to pool\n");
+
+        // 检查指针是否为空
+        if (ptr == nullptr) {
+            OSAL_LOGE("Attempted to deallocate a null pointer\n");
+            return;
+        }
+
+        // 提取元数据
+        uintptr_t *metadata = reinterpret_cast<uintptr_t *>(ptr) - 2;
+        void *original = reinterpret_cast<void *>(metadata[0]);
+        uintptr_t magic = metadata[1];
+
+        // 检查是否是对齐分配的内存块
+        if (magic == MAGIC_NUMBER) {
+            // 对齐分配的内存块
+            if (osMemoryPoolFree(memPoolId, original) != osOK) {
+                OSAL_LOGE("Failed to deallocate memory to pool\n");
+            } else {
+                OSAL_LOGD("Deallocated memory to pool\n");
+            }
         } else {
-            OSAL_LOGD("Deallocated memory to pool\n");
+            // 普通分配的内存块
+            if (osMemoryPoolFree(memPoolId, ptr) != osOK) {
+                OSAL_LOGE("Failed to deallocate memory to pool\n");
+            } else {
+                OSAL_LOGD("Deallocated memory to pool\n");
+            }
         }
     }
 
@@ -108,7 +131,7 @@ public:
         }
 
         // 确保分配的大小不会超过内存池单个块的大小
-        size_t totalSize = size + alignment - 1 + sizeof(void *);
+        size_t totalSize = size + alignment - 1 + 2 * sizeof(uintptr_t);
         if (totalSize > _block_size) {
             OSAL_LOGE("Requested size exceeds the block size of the memory pool.\n");
             return nullptr;
@@ -121,11 +144,19 @@ public:
             return nullptr;
         }
 
-        // 计算对齐后的地址
-        uintptr_t aligned = (reinterpret_cast<uintptr_t>(original) + sizeof(void *) + alignment - 1) & ~(alignment - 1);
+        // 检查原始地址是否已经对齐
+        if (reinterpret_cast<uintptr_t>(original) % alignment == 0) {
+            OSAL_LOGD("Allocated %d bytes with alignment %d (already aligned)\n", size, alignment);
+            return original;
+        }
 
-        // 存储原始指针用于释放时使用
-        reinterpret_cast<void **>(aligned)[-1] = original;
+        // 计算对齐后的地址
+        uintptr_t aligned = (reinterpret_cast<uintptr_t>(original) + 2 * sizeof(uintptr_t) + alignment - 1) & ~(alignment - 1);
+
+        // 存储元数据用于释放时使用
+        uintptr_t *metadata = reinterpret_cast<uintptr_t *>(aligned) - 2;
+        metadata[0] = reinterpret_cast<uintptr_t>(original);
+        metadata[1] = MAGIC_NUMBER; // 使用魔数标识对齐分配的内存块
 
         OSAL_LOGD("Allocated %d bytes with alignment %d\n", size, alignment);
         return reinterpret_cast<void *>(aligned);
@@ -138,6 +169,7 @@ private:
     size_t _block_size = 0;   // 每个块的大小
     size_t _block_count = 0;  // 块的数量
     volatile bool is_inited = false;
+    static constexpr uintptr_t MAGIC_NUMBER = 0xDEADBEEF; // 魔数，用于标识对齐分配的内存块
 };
 
 }  // namespace osal

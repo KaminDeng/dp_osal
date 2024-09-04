@@ -17,14 +17,19 @@ namespace osal {
 
 class OSALMutex : public IMutex {
 public:
-    OSALMutex() { pthread_mutex_init(&mutex_, nullptr); }
+    OSALMutex() {
+        pthread_mutexattr_t attr;
+        pthread_mutexattr_init(&attr);
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+        pthread_mutex_init(&mutex_, &attr);
+        pthread_mutexattr_destroy(&attr);
+    }
 
     ~OSALMutex() { pthread_mutex_destroy(&mutex_); }
 
     bool lock() override {
         int ret = pthread_mutex_lock(&mutex_);
         if (ret != 0) {
-            //                error_ = strerror(ret);
             OSAL_LOGE("Failed to lock mutex, return code %d\n", ret);
             return false;
         }

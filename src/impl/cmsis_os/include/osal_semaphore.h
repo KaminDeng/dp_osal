@@ -4,7 +4,7 @@
 #ifndef __OSAL_SEMAPHORE_H__
 #define __OSAL_SEMAPHORE_H__
 
-#include "cmsis_os.h"
+#include "osal.h"
 #include "interface_semaphore.h"
 #include "osal_debug.h"
 

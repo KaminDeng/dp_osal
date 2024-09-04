@@ -4,7 +4,7 @@
 #ifndef __OSAL_CONDITION_VARIABLE_H__
 #define __OSAL_CONDITION_VARIABLE_H__
 
-#include "cmsis_os.h"
+#include "osal.h"
 #include "interface_condition_variable.h"
 #include "osal_debug.h"
 #include "osal_mutex.h"

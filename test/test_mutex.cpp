@@ -39,13 +39,49 @@ TEST_CASE(TestOSALMutexUnlock) {
 TEST_CASE(TestOSALMutexTryLock) {
 #if (TestOSALMutexTryLockEnabled)
     osal::OSALMutex mutex;
+
+    // 在同一个线程中测试递归锁的行为
     OSAL_ASSERT_TRUE(mutex.tryLock());
+    OSAL_ASSERT_TRUE(mutex.tryLock());  // 递归锁应该允许同一个线程再次获取锁
+    OSAL_ASSERT_TRUE(mutex.unlock());
     OSAL_ASSERT_TRUE(mutex.unlock());
 
-    // 尝试在锁定状态下再次锁定
-    OSAL_ASSERT_TRUE(mutex.lock());
-    OSAL_ASSERT_FALSE(mutex.tryLock());
-    OSAL_ASSERT_TRUE(mutex.unlock());
+    // 在不同线程中测试非递归锁的行为
+    OSALThread thread1, thread2;
+    std::atomic<bool> task1Executed(false);
+    std::atomic<bool> task2Executed(false);
+
+    thread1.start(
+        "Thread1",
+        [&](void *) {
+            TestOSALPackFunc([&](void *) {
+                OSAL_ASSERT_TRUE(mutex.lock());
+                OSALSystem::getInstance().sleep_ms(1000);  // 保持锁定状态
+                OSAL_ASSERT_TRUE(mutex.unlock());
+                task1Executed = true;
+                return 0;
+            });
+        },
+        nullptr, 0, 1024);
+
+    OSALSystem::getInstance().sleep_ms(100);  // 确保thread1已经获取锁
+
+    thread2.start(
+        "Thread2",
+        [&](void *) {
+            TestOSALPackFunc([&](void *) {
+                OSAL_ASSERT_FALSE(mutex.tryLock());  // thread1持有锁，thread2应该无法获取锁
+                task2Executed = true;
+                return 0;
+            });
+        },
+        nullptr, 0, 1024);
+
+    thread1.join();
+    thread2.join();
+
+    OSAL_ASSERT_TRUE(task1Executed);
+    OSAL_ASSERT_TRUE(task2Executed);
 #endif
     return 0;  // 表示测试通过
 }
@@ -53,13 +89,49 @@ TEST_CASE(TestOSALMutexTryLock) {
 TEST_CASE(TestOSALMutexTryLockFor) {
 #if (TestOSALMutexTryLockForEnabled)
     osal::OSALMutex mutex;
+
+    // 在同一个线程中测试递归锁的行为
     OSAL_ASSERT_TRUE(mutex.tryLockFor(500));
+    OSAL_ASSERT_TRUE(mutex.tryLockFor(500));  // 递归锁应该允许同一个线程再次获取锁
+    OSAL_ASSERT_TRUE(mutex.unlock());
     OSAL_ASSERT_TRUE(mutex.unlock());
 
-    // 尝试在锁定状态下再次锁定
-    OSAL_ASSERT_TRUE(mutex.lock());
-    OSAL_ASSERT_FALSE(mutex.tryLockFor(500));
-    OSAL_ASSERT_TRUE(mutex.unlock());
+    // 在不同线程中测试非递归锁的行为
+    OSALThread thread1, thread2;
+    std::atomic<bool> task1Executed(false);
+    std::atomic<bool> task2Executed(false);
+
+    thread1.start(
+        "Thread1",
+        [&](void *) {
+            TestOSALPackFunc([&](void *) {
+                OSAL_ASSERT_TRUE(mutex.lock());
+                OSALSystem::getInstance().sleep_ms(1000);  // 保持锁定状态
+                OSAL_ASSERT_TRUE(mutex.unlock());
+                task1Executed = true;
+                return 0;
+            });
+        },
+        nullptr, 0, 1024);
+
+    OSALSystem::getInstance().sleep_ms(100);  // 确保thread1已经获取锁
+
+    thread2.start(
+        "Thread2",
+        [&](void *) {
+            TestOSALPackFunc([&](void *) {
+                OSAL_ASSERT_FALSE(mutex.tryLockFor(500));  // thread1持有锁，thread2应该无法获取锁
+                task2Executed = true;
+                return 0;
+            });
+        },
+        nullptr, 0, 1024);
+
+    thread1.join();
+    thread2.join();
+
+    OSAL_ASSERT_TRUE(task1Executed);
+    OSAL_ASSERT_TRUE(task2Executed);
 #endif
     return 0;  // 表示测试通过
 }

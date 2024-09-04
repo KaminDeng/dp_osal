@@ -6,7 +6,7 @@
 
 #include <functional>
 
-#include "cmsis_os.h"
+#include "osal.h"
 #include "interface_timer.h"
 #include "osal_chrono.h"
 #include "osal_debug.h"

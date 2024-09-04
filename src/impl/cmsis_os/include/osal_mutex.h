@@ -4,7 +4,7 @@
 #ifndef _OSAL_MUTEX_H__
 #define _OSAL_MUTEX_H__
 
-#include "cmsis_os.h"
+#include "osal.h"
 #include "interface_mutex.h"
 #include "osal_debug.h"
 
@@ -13,7 +13,10 @@ namespace osal {
 class OSALMutex : public IMutex {
 public:
     OSALMutex() {
-        mutex_ = osMutexNew(nullptr);
+        osMutexAttr_t mutexAttr = {};
+        mutexAttr.name = "OSALMutex";
+        mutexAttr.attr_bits = osMutexRecursive | osMutexPrioInherit;
+        mutex_ = osMutexNew(&mutexAttr);
         if (mutex_ == nullptr) {
             OSAL_LOGE("Failed to initialize mutex\n");
         } else {

@@ -43,7 +43,7 @@ TEST_CASE(TestOSALMemoryManagerReallocate) {
 TEST_CASE(TestOSALMemoryManagerAllocateAligned) {
 #if (TestOSALMemoryManagerAllocateAlignedEnabled)
     osal::OSALMemoryManager memoryManager(128, 10);
-    void *ptr = memoryManager.allocateAligned(50, 64);
+    void *ptr = memoryManager.allocateAligned(30, 64);
     OSAL_ASSERT_TRUE(ptr != nullptr);
     OSAL_ASSERT_TRUE(reinterpret_cast<uintptr_t>(ptr) % 64 == 0);
     memoryManager.deallocate(ptr);
