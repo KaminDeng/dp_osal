@@ -109,9 +109,7 @@ public:
     }
 
     void detach() override {
-        // In FreeRTOS, tasks are inherently detached and will clean up after completion.
-        // However, we need to ensure that the handle is not used after the task is done.
-        threadHandle = nullptr;
+        // Threre are inherently detached and will clean up after completion.
         OSAL_LOGD("Thread detached\n");
     }
 
