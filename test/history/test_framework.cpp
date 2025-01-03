@@ -4,19 +4,6 @@
 #include "test_framework.h"
 
 #include "osal_debug.h"
-#include "test_condition_variable.cpp"
-#include "test_lockguard.cpp"
-#include "test_memory_manger.cpp"
-#include "test_mutex.cpp"
-#include "test_queue.cpp"
-#include "test_rwlock.cpp"
-#include "test_semaphore.cpp"
-#include "test_spin_lock.cpp"
-#include "test_thread.cpp"
-#include "test_thread_pool.cpp"
-#include "test_timer.cpp"
-// 如果系统启动时时间为0, 可能会测试失败
-#include "test_chrono.cpp"
 
 using namespace osal;
 
@@ -59,12 +46,11 @@ void runAllTests() {
         index++;
     }
 
-    OSAL_LOGI("Total tests: %d -> Passed: %d, Failed: %d, Not Executed: %d\n", static_cast<int>(tests.size()), passed, failed,
-              not_executed);
+    OSAL_LOGI("Total tests: %d -> Passed: %d, Failed: %d, Not Executed: %d\n", static_cast<int>(tests.size()), passed,
+              failed, not_executed);
 }
 
 // 用于封装返回值伟int的宏
 void TestOSALPackFunc(std::function<int(void *)> taskFunction) {
-    if(taskFunction)
-        taskFunction(nullptr);
+    if (taskFunction) taskFunction(nullptr);
 }

@@ -4,14 +4,56 @@
 #include "osal_debug.h"
 #include "osal_system.h"
 #include "osal_thread.h"
-#include "test_framework.h"
 
 using namespace osal;
+
+#ifdef OSAL_CONFIG_SELFTEST_ENABLE
+#include "test_chrono.cpp"  // 如果系统启动时时间为0, 可能会测试失败
+#include "test_condition_variable.cpp"
+#include "test_framework.h"
+#include "test_lockguard.cpp"
+#include "test_memory_manger.cpp"
+#include "test_mutex.cpp"
+#include "test_queue.cpp"
+#include "test_rwlock.cpp"
+#include "test_semaphore.cpp"
+#include "test_spin_lock.cpp"
+#include "test_thread.cpp"
+#include "test_thread_pool.cpp"
+#include "test_timer.cpp"
+#endif
+
+#ifdef OSAL_CONFIG_GOOGLETEST_ENABLE
+#include <gtest/gtest.h>
+
+#include "gtest_chrono.cpp"  // 如果系统启动时时间为0, 可能会测试失败
+#include "gtest_condition_variable.cpp"
+#include "gtest_lockguard.cpp"
+#include "gtest_memory_manger.cpp"
+#include "gtest_mutex.cpp"
+#include "gtest_queue.cpp"
+#include "gtest_rwlock.cpp"
+#include "gtest_semaphore.cpp"
+#include "gtest_spin_lock.cpp"
+#include "gtest_thread.cpp"
+#include "gtest_thread_pool.cpp"
+#include "gtest_timer.cpp"
+#endif
 
 void StartDefaultTask(void *argument) {
     (void)argument;
     // setLogLevel(LOG_LEVEL_VERBOSE);
+
+#ifdef OSAL_CONFIG_SELFTEST_ENABLE
     runAllTests();
+#endif
+
+#ifdef OSAL_CONFIG_GOOGLETEST_ENABLE
+    int argc = 1;
+    char *argv[1] = {const_cast<char *>("osal_gtest")};
+    ::testing::InitGoogleTest(&argc, argv);
+    RUN_ALL_TESTS();
+#endif
 }
 
 OSALThread osal_test_thread;

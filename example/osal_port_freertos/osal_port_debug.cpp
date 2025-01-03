@@ -11,4 +11,12 @@ void osal_port_debug_write(char* buf, uint32_t len) {
 //    write(1, buf, len);
 }
 
-
+// 重定向标准输出/错误
+extern "C" int _write(int fd, const void* buf, size_t count) {
+    if (fd == STDOUT_FILENO || fd == STDERR_FILENO) {
+        // 注意：需要强制转换const修饰符
+        osal_port_debug_write((char*)buf, count);
+        return count;
+    }
+    return -1; // 其他文件描述符不处理
+}
