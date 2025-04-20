@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2024 kamin.deng
  * Email: kamin.deng@gmail.com
- * Created on 2024/8/22.
+ * Created on 2025/4/21.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,24 @@
  * SOFTWARE.
  */
 
-#ifndef OSAL_TEST_MAIN_H
-#define OSAL_TEST_MAIN_H
+#include "osal_chrono.h"
+#include "osal_system.h"
+#include "osal_test_main.h"
+#include "osal_thread.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+using namespace osal;
 
-int osal_test_main(void);
-
-#ifdef __cplusplus
+void* hello_thread(void* arg) {
+    OSAL_LOGI("Hello World from OSAL thread!\n");
+    return nullptr;
 }
-#endif
 
-#endif  // OSAL_TEST_MAIN_H
+int main() {
+    OSALThread thread;
+    OSAL_LOGI("System Type: %s\n", OSALSystem::getInstance().get_system_info());
+
+    thread.start("TestThread", hello_thread, nullptr, 0, 1024);
+    OSALSystem::getInstance().StartScheduler();
+
+    return 0;
+}

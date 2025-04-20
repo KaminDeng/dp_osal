@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2024 kamin.deng
  * Email: kamin.deng@gmail.com
- * Created on 2024/8/22.
+ * Created on 2024/8/26.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,14 @@
  * SOFTWARE.
  */
 
-#ifndef OSAL_TEST_MAIN_H
-#define OSAL_TEST_MAIN_H
+#ifndef OSAL_PORT_CONFIG_H
+#define OSAL_PORT_CONFIG_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stdint.h>
 
-int osal_test_main(void);
+#define OSAL_CONFIG_THREAD_MINIMAL_STACK_SIZE 8 * 1024 * 1024  // 8MB栈
+#define OSAL_CONFIG_THREAD_DEFAULT_PRIORITY 0
 
-#ifdef __cplusplus
-}
-#endif
+void osal_port_debug_write(char* buf, uint32_t len);
 
-#endif  // OSAL_TEST_MAIN_H
+#endif  // OSAL_PORT_CONFIG_H

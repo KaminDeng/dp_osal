@@ -4,7 +4,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 需要在定义osal_config.cmake中定义 OSAL_CONFIG_PLATFORM 和 OSAL_CONFIG_DEPENDENT_LIBRARIES
-include("${CMAKE_CURRENT_SOURCE_DIR}/../osal_port/osal_config.cmake")
+if(DEFINED ENV{OSAL_PORT_DIR})
+    include("$ENV{OSAL_PORT_DIR}/osal_config.cmake")
+else()
+    include("${CMAKE_CURRENT_SOURCE_DIR}/../dp_osal_port/osal_config.cmake")
+endif()
+
 if (NOT DEFINED OSAL_CONFIG_DEPENDENT_LIBRARIES OR (NOT DEFINED OSAL_CONFIG_SELFTEST_ENABLE AND NOT DEFINED OSAL_CONFIG_GOOGLETEST_ENABLE))
     message(FATAL_ERROR "OSAL_CONFIG_DEPENDENT_LIBRARIES/OSAL_CONFIG_SELFTEST_ENABLE/OSAL_CONFIG_GOOGLETEST_ENABLE is not defined")
 endif()
@@ -25,7 +30,7 @@ endif()
 
 
 
-set(SELFTEST_SUITE_PATH "test/history")
+set(SELFTEST_SUITE_PATH "test/test_framework")
 set(GOOGLETEST_SUITE_PATH "test/gtest")
 set(OSAL_IMPL_PATH "src/impl")
 

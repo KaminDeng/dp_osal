@@ -1,4 +1,5 @@
 cmake-build-debug/
+build
 .vscode
 .idea
 *.tags

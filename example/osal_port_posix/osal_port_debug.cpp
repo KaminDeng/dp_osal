@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2024 kamin.deng
  * Email: kamin.deng@gmail.com
- * Created on 2024/8/22.
+ * Created on 2024/8/26.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,11 @@
  * SOFTWARE.
  */
 
-#ifndef OSAL_TEST_MAIN_H
-#define OSAL_TEST_MAIN_H
+#include <unistd.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "osal_port_config.h"
 
-int osal_test_main(void);
-
-#ifdef __cplusplus
+void osal_port_debug_write(char* buf, uint32_t len) {
+    // Write the log message to file descriptor 1 (stdout)
+    write(1, buf, len);
 }
-#endif
-
-#endif  // OSAL_TEST_MAIN_H

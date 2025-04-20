@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2024 kamin.deng
  * Email: kamin.deng@gmail.com
- * Created on 2024/8/22.
+ * Created on 2025/4/21.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +22,13 @@
  * SOFTWARE.
  */
 
-#ifndef OSAL_TEST_MAIN_H
-#define OSAL_TEST_MAIN_H
+#include "osal_system.h"
+#include "osal_test_main.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+using namespace osal;
 
-int osal_test_main(void);
+int main() {
+    osal_test_main();
 
-#ifdef __cplusplus
+    return 0;
 }
-#endif
-
-#endif  // OSAL_TEST_MAIN_H
